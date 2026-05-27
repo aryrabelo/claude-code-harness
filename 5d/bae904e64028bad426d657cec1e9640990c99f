@@ -1,0 +1,19 @@
+scripts/install-private.sh
+  s_610579f50d42b8::t_411b2d8b8164b7 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5dbae904e64028bad426d657cec1e9640990c99f",
+  "prompts": {},
+  "sessions": {
+    "s_610579f50d42b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "afc77044-173c-4230-a318-7852c8505c22",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
