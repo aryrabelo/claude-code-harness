@@ -1,0 +1,25 @@
+go/internal/hookhandler/worktree_create.go
+  s_610579f50d42b8::t_a034f4feee309c 205-209,215-231
+  s_610579f50d42b8::t_5321a874a5ac94 162-165
+scripts/hook-handlers/worktree-create.sh
+  s_610579f50d42b8::t_641d237233d994 100-105,108-114
+  s_610579f50d42b8::t_61accbd895ff81 142,145
+go/internal/hookhandler/worktree_create_test.go
+  s_610579f50d42b8::t_6bdab8850e5c51 321-367
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2980653354c3f91c1bddfe53476d6fa3f93d5da5",
+  "prompts": {},
+  "sessions": {
+    "s_610579f50d42b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "afc77044-173c-4230-a318-7852c8505c22",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
