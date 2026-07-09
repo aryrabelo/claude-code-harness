@@ -1,0 +1,26 @@
+go/internal/planstate/runs.go
+  s_e9760b94be6a2a::t_b0277ddeed734e 1-189
+go/internal/planstate/runs_test.go
+  s_e9760b94be6a2a::t_c8175e7a8e090b 1-149
+go/cmd/harness/plan.go
+  s_e9760b94be6a2a::t_375e551e67342e 159-163
+  s_e9760b94be6a2a::t_97146493c5d862 19
+  s_e9760b94be6a2a::t_925832d81d57c6 177-234,240-302
+  s_e9760b94be6a2a::t_ba0396752bd833 8-9,303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "68d2c5f0422169c11acd4acd6d0993ccd884a2ab",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
