@@ -1,0 +1,28 @@
+go/internal/planstate/planstate_test.go
+  s_e9760b94be6a2a::t_1a138936531283 1-155
+  s_e9760b94be6a2a::t_ec8a44dc97081e 156-187
+go/internal/planstate/store.go
+  s_e9760b94be6a2a::t_2cf6c5f69fbfb5 1-103,108-125,128-333
+  s_e9760b94be6a2a::t_d4caba57ed798a 104-107
+  s_e9760b94be6a2a::t_ea922e70a51a8e 126-127
+go/internal/planstate/schema.go
+  s_e9760b94be6a2a::t_8dd9167956c2e7 1-75
+.gitignore
+  s_e9760b94be6a2a::t_b6cca3f5d597de 350-352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9136bee274c124cfca36f791d2a19e4fbb9eac18",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
