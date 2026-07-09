@@ -1,0 +1,29 @@
+go/cmd/harness/verbs.go
+  s_e9760b94be6a2a::t_999fa58e1c46df 51-57,59
+go/internal/planstate/waves.go
+  s_e9760b94be6a2a::t_a3b601d376ce9a 1-87
+go/cmd/harness/plan.go
+  s_e9760b94be6a2a::t_95a25296741845 30
+  s_e9760b94be6a2a::t_c1d83220731a5d 1-12,20-29,31-173
+  s_e9760b94be6a2a::t_226fcb72c1778e 13-19
+go/cmd/harness/plan_test.go
+  s_e9760b94be6a2a::t_20f747685a2dd8 1-124
+go/internal/planstate/waves_test.go
+  s_e9760b94be6a2a::t_a595923cb8af1d 1-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "0f3272639b9654f9ef631c6a991cc8d8249a7add",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
