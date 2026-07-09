@@ -24,6 +24,23 @@ grep -q "block: true" "${TEMPLATE}" && ok "block contract" || ng "block contract
 # Policy: payload must never be string-interpolated into the shell command.
 grep -q 'printf .%s. "\$1"' "${TEMPLATE}" && ok "stdin via positional arg" || ng "stdin plumbing missing"
 
+# 1b. Plan-state tools (task 111.6): LLM-callable tools + wave context + heartbeat
+grep -q 'registerTool' "${TEMPLATE}" && ok "registerTool used" || ng "registerTool missing"
+for tool in plan_next plan_claim plan_done; do
+  grep -q "\"${tool}\"" "${TEMPLATE}" && ok "tool ${tool} registered" || ng "tool ${tool} missing"
+done
+grep -q 'planCLI(\["next"' "${TEMPLATE}" && ok "plan_next shells to CLI verb" || ng "plan next CLI call missing"
+grep -q '"run-begin"' "${TEMPLATE}" && ok "plan_claim shells to run-begin" || ng "run-begin CLI call missing"
+grep -q '"run-end"' "${TEMPLATE}" && ok "plan_done shells to run-end" || ng "run-end CLI call missing"
+grep -q 'harness-wave' "${TEMPLATE}" && ok "session_start wave context" || ng "wave context missing"
+grep -q 'pi.on("turn_end"' "${TEMPLATE}" && ok "turn_end heartbeat handler" || ng "turn_end handler missing"
+# hosts consume via CLI only — the shim must never open the DB file directly
+if grep -q 'plan_state.db' "${TEMPLATE}"; then
+  ng "shim references DB file directly (CLI-only contract)"
+else
+  ok "no direct DB access (CLI-only)"
+fi
+
 # 2. Setup script --check
 if bash "${SETUP}" --check >/dev/null 2>&1; then
   ok "setup --check passes"

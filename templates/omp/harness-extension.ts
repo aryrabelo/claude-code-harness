@@ -14,8 +14,17 @@
  * Wired events:
  *   - tool_call      → bin/harness hook pre-tool  (R01-R13 enforcement; block on deny)
  *   - session_start  → bin/harness hook session-monitor (project status note)
+ *                      + plan-state wave context (top ready tasks)
+ *   - turn_end       → heartbeat for the active plan-state claim
  *   - agent_end      → scripts/advisor-hook.sh    (session advisor, opt-in)
+ *                      + release the active claim if still open
  *   - /harness-advisor command → toggle .claude/harness/advisor.json
+ *
+ * Plan-state tools (LLM-callable, spec.md "Plan State Projection Contract"):
+ *   - plan_next  → bin/harness plan next --json   (first unblocked task)
+ *   - plan_claim → bin/harness plan run-begin ... (atomic CAS claim)
+ *   - plan_done  → bin/harness plan run-end ...   (close claim with evidence)
+ * The shim never opens the SQLite file directly — hosts consume via CLI only.
  */
 
 const HARNESS_ROOT = "__HARNESS_ROOT__";
@@ -90,6 +99,14 @@ export default function harness(pi: any): void {
 		return undefined;
 	});
 
+	// Active plan-state claim for this session (set by plan_claim).
+	let activeRunID: number | null = null;
+
+	async function planCLI(args: string[], timeoutMs = 15_000): Promise<string> {
+		const result = await pi.exec(HARNESS_BIN, ["plan", ...args], { timeout: timeoutMs });
+		return (result.stdout ?? "").trim();
+	}
+
 	// --- SessionStart equivalent ----------------------------------------
 	pi.on("session_start", async () => {
 		try {
@@ -104,10 +121,89 @@ export default function harness(pi: any): void {
 		} catch {
 			// fail open
 		}
+		// Wave context: top ready tasks so every session opens on-track.
+		try {
+			const waves = JSON.parse(await planCLI(["waves", "--json"]));
+			if (Array.isArray(waves) && waves.length > 0) {
+				const top = waves[0].slice(0, 3).map((n: any) => `${n.id}: ${n.title}`).join("\n");
+				pi.sendMessage(
+					{
+						customType: "harness-wave",
+						content: `Current wave (ready tasks):\n${top}`,
+						display: true,
+					},
+					{ triggerTurn: false },
+				);
+			}
+		} catch {
+			// no Plans.md / engine unavailable: silent
+		}
 	});
+
+	// --- Heartbeat: keep the active claim alive across long turns --------
+	pi.on("turn_end", async () => {
+		if (activeRunID === null) return;
+		try {
+			await pi.exec(HARNESS_BIN, ["plan", "heartbeat", String(activeRunID)], { timeout: 5_000 });
+		} catch {
+			// fail open
+		}
+	});
+
+	// --- Plan-state tools (LLM-callable) ----------------------------------
+	if (typeof pi.registerTool === "function") {
+		pi.registerTool({
+			name: "plan_next",
+			description: "Get the first unblocked task from Plans.md (deps satisfied, not claimed). Returns null when nothing is ready.",
+			parameters: {},
+			handler: async () => JSON.parse((await planCLI(["next", "--json"])) || "null"),
+		});
+		pi.registerTool({
+			name: "plan_claim",
+			description: "Atomically claim a Plans.md task for this session (CAS; fails if a live run already holds it). Returns {run_id, node_id}.",
+			parameters: { taskId: { type: "string", description: "Dotted task id, e.g. 111.6" } },
+			handler: async (input: any) => {
+				const out = JSON.parse(
+					(await planCLI(["run-begin", String(input.taskId), "--session", "omp", "--assignee", "omp", "--json"])) || "{}",
+				);
+				if (out.run_id) activeRunID = out.run_id;
+				return out;
+			},
+		});
+		pi.registerTool({
+			name: "plan_done",
+			description: "Close the claimed task run with an outcome (done|abandoned|released) and evidence (commits, test results).",
+			parameters: {
+				runId: { type: "number", description: "Run id from plan_claim (defaults to the active claim)" },
+				outcome: { type: "string", description: "done | abandoned | released" },
+				evidence: { type: "string", description: "Evidence: commit hashes, test output summary" },
+			},
+			handler: async (input: any) => {
+				const id = input.runId ?? activeRunID;
+				if (!id) return { error: "no active claim" };
+				const out = await planCLI([
+					"run-end", String(id),
+					"--outcome", String(input.outcome ?? "done"),
+					"--evidence", String(input.evidence ?? ""),
+				]);
+				if (id === activeRunID) activeRunID = null;
+				return { result: out };
+			},
+		});
+	}
 
 	// --- Stop equivalent: session advisor (opt-in via /advisor config) ---
 	pi.on("agent_end", async () => {
+		// Release a still-open claim so a crashed/abandoned session never
+		// holds the task (reap would catch it eventually; this is immediate).
+		if (activeRunID !== null) {
+			try {
+				await planCLI(["run-end", String(activeRunID), "--outcome", "released", "--evidence", "agent_end auto-release"]);
+			} catch {
+				// reap backstop covers this
+			}
+			activeRunID = null;
+		}
 		try {
 			const { stdout } = await runWithStdin(pi, "{}", "/bin/bash", [ADVISOR_HOOK], 120_000);
 			const text = stdout.trim();

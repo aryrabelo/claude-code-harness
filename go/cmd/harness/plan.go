@@ -16,7 +16,7 @@ import (
 // any other `harness plan` invocation falls through to the legacy prompt verb.
 var planStateVerbs = map[string]bool{
 	"reindex": true, "waves": true, "next": true, "drift": true, "status": true,
-	"run-begin": true, "run-end": true, "resume": true,
+	"run-begin": true, "run-end": true, "resume": true, "heartbeat": true,
 }
 
 // runPlanState implements the plan-state projection verbs (spec.md "Plan State
@@ -212,6 +212,22 @@ func runPlanState(args []string) {
 			os.Exit(1)
 		}
 		fmt.Printf("run %d ended: %s\n", runID, outcome)
+
+	case "heartbeat":
+		// harness plan heartbeat <runID> — refresh a running claim.
+		var hbID int64
+		if len(args) > 1 {
+			hbID, _ = strconv.ParseInt(args[1], 10, 64)
+		}
+		if hbID == 0 {
+			fmt.Fprintln(os.Stderr, "Usage: harness plan heartbeat <runID>")
+			os.Exit(1)
+		}
+		if err := store.Heartbeat(hbID); err != nil {
+			fmt.Fprintf(os.Stderr, "plan heartbeat: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("run %d heartbeat\n", hbID)
 
 	case "resume":
 		rowsOut, err := store.Resumable(planName, time.Hour)
