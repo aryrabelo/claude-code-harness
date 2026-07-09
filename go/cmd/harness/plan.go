@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/Chachamaru127/claude-code-harness/go/internal/plans"
 	"github.com/Chachamaru127/claude-code-harness/go/internal/planstate"
@@ -14,6 +16,7 @@ import (
 // any other `harness plan` invocation falls through to the legacy prompt verb.
 var planStateVerbs = map[string]bool{
 	"reindex": true, "waves": true, "next": true, "drift": true, "status": true,
+	"run-begin": true, "run-end": true, "resume": true,
 }
 
 // runPlanState implements the plan-state projection verbs (spec.md "Plan State
@@ -153,6 +156,11 @@ func runPlanState(args []string) {
 			}
 			return
 		}
+		// Opportunistic reap: crashed/stale claims are released here so the
+		// next session never waits on a dead run (no daemon needed).
+		if _, err := store.Reap(planName, 2*time.Hour); err != nil {
+			fmt.Fprintf(os.Stderr, "plan next: reap: %v\n", err)
+		}
 		next, err := store.Next(planName)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "plan next: %v\n", err)
@@ -166,8 +174,130 @@ func runPlanState(args []string) {
 			fmt.Printf("next: %s — %s\n", next.ID, next.Title)
 		}
 
+	case "run-begin":
+		// harness plan run-begin <taskID> [--session S] [--assignee A] [--worktree W]
+		nodeID, opts := parseRunBeginArgs(args[1:])
+		if nodeID == "" {
+			fmt.Fprintln(os.Stderr, "Usage: harness plan run-begin <taskID> [--session S] [--assignee A] [--worktree W]")
+			os.Exit(1)
+		}
+		if err := store.Reindex(planName, tasks); err != nil {
+			fmt.Fprintf(os.Stderr, "plan run-begin: reindex: %v\n", err)
+			os.Exit(1)
+		}
+		runID, err := store.Claim(planName, nodeID, opts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "plan run-begin: %v\n", err)
+			os.Exit(1)
+		}
+		if runID == 0 {
+			fmt.Fprintf(os.Stderr, "plan run-begin: %s already claimed by a live run\n", nodeID)
+			os.Exit(1)
+		}
+		if asJSON {
+			_ = json.NewEncoder(os.Stdout).Encode(map[string]any{"run_id": runID, "node_id": nodeID})
+		} else {
+			fmt.Printf("run %d claimed %s\n", runID, nodeID)
+		}
+
+	case "run-end":
+		// harness plan run-end <runID> [--outcome done|abandoned|released] [--evidence TEXT]
+		runID, outcome, evidence := parseRunEndArgs(args[1:])
+		if runID == 0 {
+			fmt.Fprintln(os.Stderr, "Usage: harness plan run-end <runID> [--outcome done|abandoned|released] [--evidence TEXT]")
+			os.Exit(1)
+		}
+		if err := store.EndRun(runID, outcome, evidence); err != nil {
+			fmt.Fprintf(os.Stderr, "plan run-end: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("run %d ended: %s\n", runID, outcome)
+
+	case "resume":
+		rowsOut, err := store.Resumable(planName, time.Hour)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "plan resume: %v\n", err)
+			os.Exit(1)
+		}
+		if asJSON {
+			if rowsOut == nil {
+				rowsOut = []planstate.Run{}
+			}
+			_ = json.NewEncoder(os.Stdout).Encode(rowsOut)
+		} else if len(rowsOut) == 0 {
+			fmt.Println("nothing to resume")
+		} else {
+			for _, r := range rowsOut {
+				fmt.Printf("resumable: %s (run %d, pid %d, worktree %s)\n", r.NodeID, r.ID, r.PID, r.Worktree)
+			}
+		}
+
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown plan subcommand: %s\n", verb)
 		os.Exit(1)
 	}
+}
+
+func parseRunBeginArgs(args []string) (string, planstate.ClaimOpts) {
+	opts := planstate.ClaimOpts{PID: os.Getpid(), StaleAfter: 2 * time.Hour}
+	host, _ := os.Hostname()
+	opts.MachineID = host
+	nodeID := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--session":
+			if i+1 < len(args) {
+				opts.SessionID = args[i+1]
+				i++
+			}
+		case "--assignee":
+			if i+1 < len(args) {
+				opts.Assignee = args[i+1]
+				i++
+			}
+		case "--worktree":
+			if i+1 < len(args) {
+				opts.Worktree = args[i+1]
+				i++
+			}
+		case "--plan", "--file":
+			i++ // consumed by outer parser; skip value
+		case "--json":
+		default:
+			if nodeID == "" {
+				nodeID = args[i]
+			}
+		}
+	}
+	return nodeID, opts
+}
+
+func parseRunEndArgs(args []string) (int64, string, string) {
+	var runID int64
+	outcome := "done"
+	evidence := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--outcome":
+			if i+1 < len(args) {
+				outcome = args[i+1]
+				i++
+			}
+		case "--evidence":
+			if i+1 < len(args) {
+				evidence = args[i+1]
+				i++
+			}
+		case "--plan", "--file":
+			i++
+		case "--json":
+		default:
+			if runID == 0 {
+				if v, err := strconv.ParseInt(args[i], 10, 64); err == nil {
+					runID = v
+				}
+			}
+		}
+	}
+	return runID, outcome, evidence
 }
