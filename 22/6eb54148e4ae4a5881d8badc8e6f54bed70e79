@@ -1,0 +1,23 @@
+docs/plans/plan-state.md
+  s_e9760b94be6a2a::t_1a85d85461caef 1-107
+CHANGELOG.md
+  s_e9760b94be6a2a::t_9a7e2844ba5bff 11-28
+tests/test-generate-skill-manifest.sh
+  s_e9760b94be6a2a::t_1c8ed7b5c74226 63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "226eb54148e4ae4a5881d8badc8e6f54bed70e79",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
