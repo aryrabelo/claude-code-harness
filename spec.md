@@ -172,6 +172,38 @@ Non-trivial planning must be team-validated. TeamAgent or sub-agent perspectives
 
 Related sub-spec anchors: `docs/architecture/hokage-core.md`, `go/SPEC.md`, Host Adapter Boundary, Support Tiers And Host Claims, Onboarding Contract, New Session Bootstrap Rule, and `future/unsupported` host claim handling.
 
+## Plan State Projection Contract
+
+The harness keeps long-running, multi-wave work on track with a machine-local
+SQLite projection of the plan, without weakening `Plans.md` as the task SSOT.
+
+1. **Plans.md is the definition SSOT.** Task identity, content, DoD, `Depends`,
+   `[P]` markers, and `cc:*` status markers live in `Plans.md` (git-committed,
+   human-reviewed). The projection never becomes a second authority for these.
+2. **`.harness/plan_state.db` is a rebuildable runtime overlay.** It is
+   machine-local, gitignored, and holds only state-of-play: derived plan nodes
+   (with a per-row content hash for drift detection), the dependency graph
+   projection, and run records (claims, pids, heartbeats, dispatched waves,
+   worktrees, evidence). Deleting the DB loses no truth: `harness plan reindex`
+   rebuilds every definitional row from `Plans.md`. Waves are computed by
+   topological sort over `Depends` + `[P]`; they are recorded for resume and
+   audit, never stored as authority.
+3. **Claims are host-local.** A task claim is a single-statement compare-and-set
+   on the run overlay, guarded by process liveness on the same host plus a
+   wall-clock staleness backstop. Claims, pids, and worktrees are meaningless
+   across machines and are never synced; cross-machine coordination happens
+   through git-synced `Plans.md` followed by `plan reindex` on the other
+   machine. The DB file is never committed or merged.
+4. **Plans.md writes stay human-gated; hosts consume via CLI only.** The
+   projection layer proposes marker updates exclusively through the existing
+   `harness-sync` proposal flow; it never edits `Plans.md` silently. Hosts
+   (Claude / Codex / Cursor / omp) read plan state only through
+   `bin/harness plan ... --json`; no host reads the SQLite file directly.
+
+Sub-spec: `docs/plans/plan-state.md` (schema, CLI verbs, reconciliation flow,
+multi-machine federation rationale). An absent DB or absent planqueue bridge is
+`not-configured`, not an error (`not_observed != absent`).
+
 ## Sub-Spec Index
 
 - [Planning and host adapter](docs/spec/planning-and-host-adapter.md): Planning Surface Contract, Hokage Core And Host Adapter Boundary.
