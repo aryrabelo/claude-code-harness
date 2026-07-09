@@ -8,6 +8,31 @@ Change history for claude-code-harness.
 
 ### Added
 
+- **oh-my-pi (omp) host adapter (candidate)**: `templates/omp/harness-extension.ts`
+  (TS extension shim: `tool_call` → `bin/harness hook pre-tool` R01-R13
+  enforcement, `session_start` → session monitor, `agent_end` → session
+  advisor, `/harness-advisor` command), `scripts/setup-omp.sh`
+  (`--check` / `--project <dir>` / `--user` install into `.omp/extensions/`).
+  Zero Go changes: shim speaks the Claude payload/deny-envelope shape to the
+  same policy engine. Skills and CLAUDE.md load for free via omp's
+  `claude-plugins` / `claude` discovery providers. Tier stays `candidate`.
+  Evidence: `docs/research/omp-adapter-candidate.md`. Tests:
+  `tests/test-omp-adapter-candidate.sh` (16 gates).
+
+- **Session Advisor (oh-my-pi style)**: optional second model that reviews the
+  session at each Stop (turn end) and injects at most one advisory
+  (`ADVISOR[nit|concern|blocker]: ...`) as a systemMessage. Configure via
+  `harness.toml` `[advisor]` (project defaults) and/or
+  `.claude/harness/advisor.json` (runtime override managed by the new
+  `/advisor` skill: `on|off|status|model|backend|block-on`). Backends:
+  `codex` (default, `gpt-5.5`, read-only via `scripts/codex-companion.sh`),
+  `claude` (`claude -p`), `omp` (oh-my-pi CLI, `--no-tools --no-session`).
+  Advisor system prompt copied from oh-my-pi
+  (`skills/advisor/references/advisor-system-prompt.md`). Opt-in
+  `block_on = "blocker"` makes an `ADVISOR[blocker]` block the stop; default
+  never blocks. Silent no-op when config absent, disabled, or backend
+  unavailable. Hook: `scripts/advisor-hook.sh` (Stop).
+
 - **Grok host adapter (candidate)**: `.grok-plugin/plugin.json`, `.grok/AGENTS.md`,
   `scripts/setup-grok.sh` (`--check` + isolated HOME install),
   `scripts/build-host-plugin-dist.sh --host grok` (package-local `./skills/` paths),
