@@ -48,8 +48,15 @@ func runReview(args []string) {
 // runPlan handles `harness plan [args]`: emit the plan contract plus a context
 // header. No task is required.
 func runPlan(args []string) {
+	// Plan-state projection subcommands (reindex/waves/next/drift/status)
+	// route to the SQLite projection layer; everything else keeps the
+	// legacy behavior (emit the plan prompt for the host).
+	if len(args) > 0 && planStateVerbs[args[0]] {
+		runPlanState(args)
+		return
+	}
 	if isHelpFlag(args) {
-		fmt.Println("Usage: harness plan  — emit the plan prompt for the host to execute")
+		fmt.Println("Usage: harness plan [reindex|waves|next|drift|status]  — plan-state projection verbs; with no subcommand, emit the plan prompt for the host to execute")
 		os.Exit(0)
 	}
 	runContextVerb("plan")
