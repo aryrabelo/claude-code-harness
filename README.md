@@ -146,8 +146,40 @@ sponsor can judge without reading code:
 | OpenCode | `internal-compatible` | `scripts/setup-opencode.sh`; runtime parity is not claimed. |
 | Cursor | `internal-compatible` | `scripts/setup-cursor.sh` real-directory local install; top support tier still gated on workflow smoke. |
 | Grok | `candidate` | `scripts/setup-grok.sh` plugin package install/check; workflow smoke and Claude hook parity not claimed. |
+| oh-my-pi (omp) | `candidate` | `scripts/setup-omp.sh` extension shim install; see [Install for oh-my-pi](#install-for-oh-my-pi-omp). |
 | GitHub Copilot CLI | `candidate` | Manual profile research only. |
 | Antigravity CLI | `future/unsupported` | No end-user install route in this phase. |
+
+## Install for oh-my-pi (omp)
+
+omp loads hooks as TypeScript extension modules (not `hooks.json`). The
+adapter ships as a generated shim that routes omp events to the same
+`bin/harness` policy engine (R01-R13), the session monitor, and the session
+advisor. Skills and `CLAUDE.md` load automatically via omp's `claude-plugins`
+/ `claude` discovery providers — no extra wiring.
+
+```bash
+# 1. Clone and build the engine (Go 1.22+)
+git clone https://github.com/aryrabelo/claude-code-harness.git
+cd claude-code-harness
+(cd go && go build -o ../bin/harness ./cmd/harness)
+
+# 2. Validate
+./scripts/setup-omp.sh --check
+
+# 3. Install the shim
+./scripts/setup-omp.sh --project /path/to/your/project   # per project
+./scripts/setup-omp.sh --user                            # or every omp session
+
+# 4. Restart omp. Inside omp:
+#    - tool_call is adjudicated by R01-R13 (blocked calls show the deny reason)
+#    - /harness-advisor on|off|status toggles the session advisor
+```
+
+The shim lands at `.omp/extensions/harness.ts` (or
+`~/.omp/agent/extensions/harness.ts` with `--user`); it is a generated
+artifact — add `.omp/` to your project `.gitignore`. Details and gaps:
+[docs/research/omp-adapter-candidate.md](docs/research/omp-adapter-candidate.md).
 
 ## Existing User Migration
 
