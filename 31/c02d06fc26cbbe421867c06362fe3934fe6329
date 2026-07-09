@@ -1,0 +1,24 @@
+go/internal/planstate/bridge_config.go
+  s_e9760b94be6a2a::t_57f2f499d71d98 1-57
+go/internal/planstate/bridge.go
+  s_e9760b94be6a2a::t_5d5aee4f1ad4a1 1-228
+go/internal/planstate/bridge_test.go
+  s_e9760b94be6a2a::t_78f502ec907e9d 1-150
+  s_e9760b94be6a2a::t_47a1797705c539 151-173
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "31c02d06fc26cbbe421867c06362fe3934fe6329",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
