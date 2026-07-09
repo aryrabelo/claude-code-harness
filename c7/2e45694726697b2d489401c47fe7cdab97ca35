@@ -1,0 +1,42 @@
+scripts/advisor-hook.sh
+  s_e9760b94be6a2a::t_d50b6c3a22f965 12
+  s_e9760b94be6a2a::t_7e38642d532431 22-24,26,28,30,32-34,36-42
+  s_e9760b94be6a2a::t_3259cf27edc608 1-11,13-21,25,27,29,31,35,43-92,97-119
+  s_e9760b94be6a2a::t_b0543b37c249ed 93-96
+skills/advisor/SKILL.md
+  s_e9760b94be6a2a::t_f107ceabd25b44 70
+  s_e9760b94be6a2a::t_912e0262663cf5 24-36
+  s_e9760b94be6a2a::t_a38757eb4d17b1 4-5
+  s_e9760b94be6a2a::t_26b68c1823d725 52
+  s_e9760b94be6a2a::t_c4c98dd1005561 1-3,6-23,37-51,53-69,71-85
+skills/advisor/references/advisor-system-prompt.md
+  s_e9760b94be6a2a::t_583a73e3a297d4 1-76
+.claude-plugin/hooks.json
+  s_e9760b94be6a2a::t_79e49904014f03 578-587
+codex/.codex/skills/advisor/SKILL.md
+  s_e9760b94be6a2a::t_7fe8962a161609 1-85
+codex/.codex/skills/advisor/references/advisor-system-prompt.md
+  s_e9760b94be6a2a::t_04e32e5b6e4d60 1-76
+hooks/hooks.json
+  s_e9760b94be6a2a::t_35e41139165ac1 578-587
+opencode/skills/advisor/SKILL.md
+  s_e9760b94be6a2a::t_8ecb1ff6781d9d 1-81
+opencode/skills/advisor/references/advisor-system-prompt.md
+  s_e9760b94be6a2a::t_962274b5cdc9f8 1-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c72e45694726697b2d489401c47fe7cdab97ca35",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
