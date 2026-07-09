@@ -1,0 +1,19 @@
+docs/CLAUDE-skill-catalog.md
+  s_e9760b94be6a2a::t_855a320a197958 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "19a0be10ad9ee3a49e31ae0c0d4889d38b8353c1",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
