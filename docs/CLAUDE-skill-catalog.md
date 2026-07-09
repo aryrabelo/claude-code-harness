@@ -44,6 +44,7 @@ NO  → 通常の推論で対応
 
 | スキル | 説明 |
 |--------|------|
+| advisor | Configure the session advisor: a secondary lightweight model that reviews the session at turn end (Stop hook) and injects one concise advisory (nit/concern/blocker). Use when user says advisor, /advisor, enable advisor, advisor status, advisor model. Do NOT load for: the worker-facing advisor agent (advisor-request.v1), code review, or release. |
 | agent-browser | Browser automation through the repo agent-browser CLI. Explicit helper for navigation, forms, screenshots, scraping, and web-app checks. Prefer Browser Use or Playwright when available. Do NOT load for: sharing URLs, embedding links, or editing screenshot files. |
 | breezing | Team execution mode — backward-compatible alias for harness-work with team orchestration. Composer/composer 2.5 maps to the cursor backend. |
 | cc-update-review | Quality guardrail for Claude/Codex update integration. Detects doc-only Feature Table additions and requires implementation or explicit planning. Internal use only. |
