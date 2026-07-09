@@ -60,6 +60,7 @@ jq -e '
 ' "${OUTPUT_JSON}" >/dev/null
 
 EXPECTED_MODEL_INVOKABLE='[
+  "advisor",
   "breezing",
   "ci",
   "cursor-ask",

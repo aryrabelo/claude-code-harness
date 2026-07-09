@@ -8,6 +8,24 @@ Change history for claude-code-harness.
 
 ### Added
 
+- **Plan-state projection layer (Phase 111)**: machine-local SQLite projection
+  of Plans.md (`.harness/plan_state.db`, gitignored, fully rebuildable) that
+  keeps multi-wave work on track without weakening Plans.md as the task SSOT.
+  New spec section "Plan State Projection Contract" + sub-spec
+  `docs/plans/plan-state.md`. `go/internal/planstate` (schema v1, reindex with
+  per-row drift hashes, Kahn wave computation, CAS claim/heartbeat/reap run
+  overlay, tri-state health). CLI: `bin/harness plan
+  reindex|waves|next|drift|status|run-begin|heartbeat|run-end|resume [--json]`
+  (legacy no-arg `harness plan` prompt verb preserved). Opt-in planqueue
+  bridge (`harness.toml [planqueue]`): read-mostly client of
+  `~/.planqueue/backlog.db` with PRAGMA schema assert -> read-only degrade,
+  additive `harness_run_evidence` sidecar, `<!-- pq:<id> -->` task links, and
+  done-status changes emitted as harness-sync proposals only. omp shim v2
+  exposes `plan_next`/`plan_claim`/`plan_done` as LLM-callable tools plus wave
+  context on session_start, heartbeat on turn_end, claim auto-release on
+  agent_end. 23 planstate tests (incl. -race concurrent claim), e2e verb
+  schema test, 26 omp adapter gates.
+
 - **oh-my-pi (omp) host adapter (candidate)**: `templates/omp/harness-extension.ts`
   (TS extension shim: `tool_call` → `bin/harness hook pre-tool` R01-R13
   enforcement, `session_start` → session monitor, `agent_end` → session
