@@ -1,0 +1,31 @@
+tests/test-omp-adapter-candidate.sh
+  s_e9760b94be6a2a::t_a7ac648aef94f0 1-49,51-70
+  s_e9760b94be6a2a::t_faaab472d6e484 50
+docs/research/omp-adapter-candidate.md
+  s_e9760b94be6a2a::t_370f5b6b93c46b 1-56
+CHANGELOG.md
+  s_e9760b94be6a2a::t_2edd4c210066e9 22-35
+  s_e9760b94be6a2a::t_3d71d26e0bdbad 11-21
+templates/omp/harness-extension.ts
+  s_e9760b94be6a2a::t_8fa7606c77762d 1-159
+scripts/setup-omp.sh
+  s_e9760b94be6a2a::t_54029da3c5351e 1-99
+.gitignore
+  s_e9760b94be6a2a::t_ddf4c746431b78 223-224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "871a05eff285b8c1cc536485908561c77cea2153",
+  "prompts": {},
+  "sessions": {
+    "s_e9760b94be6a2a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6d827e60-c7ea-42f2-a997-fba397d998f4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Ary Rabelo <aryrabelo@gmail.com>"
+    }
+  }
+}
